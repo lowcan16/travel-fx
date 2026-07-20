@@ -48,7 +48,6 @@
       margin: 0 auto;
     }
 
-    /* ---- Header : departure board strip ---- */
     header {
       display: flex;
       justify-content: space-between;
@@ -97,7 +96,6 @@
       font-weight: 700;
     }
 
-    /* ---- Rate board ---- */
     .board-title {
       font-family: 'Space Mono', monospace;
       font-size: 11.5px;
@@ -181,7 +179,6 @@
       }
     }
 
-    /* ---- Calculator ---- */
     .calc {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -242,11 +239,41 @@
       font-weight: 700;
     }
 
+    .dir-toggle {
+      display: inline-flex;
+      gap: 0;
+      margin: 4px 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .dir-btn {
+      font-family: 'Space Mono', monospace;
+      background: var(--panel);
+      border: none;
+      color: var(--muted);
+      padding: 9px 16px;
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: .15s;
+    }
+
+    .dir-btn+.dir-btn {
+      border-left: 1px solid var(--border);
+    }
+
+    .dir-btn.active {
+      background: var(--amber-bg);
+      color: var(--amber);
+      font-weight: 700;
+    }
+
     .amount-row {
       display: flex;
       gap: 10px;
       align-items: center;
-      margin: 16px 0 6px;
+      margin: 4px 0 6px;
       flex-wrap: wrap;
     }
 
@@ -406,7 +433,7 @@
         <div class="sub">現金匯率（臺灣銀行）＋ VISA／Mastercard 刷卡匯率一次比較</div>
       </div>
       <div class="clock">
-        現金匯率掛牌 ── <b id="cash-date">2026-07-20 22:22</b><br>
+        現金匯率掛牌 ── <b id="cash-date">2026-07-20 22:42</b><br>
         VISA／萬事達（Mastercard）── <b>即日牌價，逐幣別標註查詢日</b>
       </div>
     </header>
@@ -416,12 +443,18 @@
 
     <div class="calc">
       <h2>換匯試算</h2>
-      <div class="hint">選擇幣別、輸入金額，比較「準備現金」跟「刷卡（含手續費）」哪個划算。</div>
+      <div class="hint">選擇幣別、輸入金額，可雙向換算：「外幣→台幣」比較要花多少台幣；「台幣→外幣」比較能換到多少外幣，哪個方式都幫你標出最划算的選項。</div>
 
       <div class="chip-group-label">常用幣別</div>
       <div class="chip-row" id="chips-main"></div>
       <div class="chip-group-label">其他幣別</div>
       <div class="chip-row" id="chips-other"></div>
+
+      <div class="chip-group-label">換算方向</div>
+      <div class="dir-toggle" id="dir-toggle">
+        <button class="dir-btn active" data-dir="toTWD">外幣 → 台幣</button>
+        <button class="dir-btn" data-dir="toForeign">台幣 → 外幣</button>
+      </div>
 
       <div class="amount-row">
         <span class="unit">金額</span>
@@ -438,7 +471,7 @@
         <thead>
           <tr>
             <th>方式</th>
-            <th style="text-align:right">折合台幣</th>
+            <th style="text-align:right">換算結果</th>
           </tr>
         </thead>
         <tbody id="result-body"></tbody>
@@ -457,8 +490,8 @@
     const DATA = [
   { code:'JPY', name:'日圓', cashBuy:0.1893, cashSell:0.2021, visa:0.19990728, visaDate:'07-20', mc:0.199926, mcDate:'07-19' },
   { code:'USD', name:'美元', cashBuy:31.85, cashSell:32.52, visa:32.409, visaDate:'07-20', mc:32.412, mcDate:'07-19' },
-  { code:'EUR', name:'歐元', cashBuy:36.02, cashSell:37.36, visa:37.12123149, visaDate:'07-20', mc:37.1246813, mcDate:'07-19' },
-  { code:'GBP', name:'英鎊', cashBuy:42.2, cashSell:44.32, visa:43.72617908, visaDate:'07-20', mc:43.730268, mcDate:'07-19' },
+  { code:'EUR', name:'歐元', cashBuy:35.98, cashSell:37.32, visa:37.12123149, visaDate:'07-20', mc:37.1246813, mcDate:'07-19' },
+  { code:'GBP', name:'英鎊', cashBuy:42.17, cashSell:44.29, visa:43.72617908, visaDate:'07-20', mc:43.730268, mcDate:'07-19' },
   { code:'HKD', name:'港幣', cashBuy:3.958, cashSell:4.162, visa:4.13474619, visaDate:'07-20', mc:4.1347111, mcDate:'07-19' },
   { code:'AUD', name:'澳幣', cashBuy:22.22, cashSell:23.0, visa:22.71868628, visaDate:'07-20', mc:22.704602, mcDate:'07-19' },
   { code:'CNY', name:'人民幣', cashBuy:4.669, cashSell:4.831, visa:4.78438873, visaDate:'07-20', mc:4.7859664, mcDate:'07-19' },
@@ -466,6 +499,7 @@
     const MAIN_CODES = ['JPY', 'USD', 'EUR', 'GBP'];
 
     let selected = 'JPY';
+    let direction = 'toTWD'; // 'toTWD' = 外幣→台幣, 'toForeign' = 台幣→外幣
 
     function fmt(n, maxDp) {
       return n.toLocaleString('zh-Hant-TW', { maximumFractionDigits: maxDp ?? 2, minimumFractionDigits: 0 });
@@ -505,39 +539,66 @@
       });
     }
 
-    function renderResult() {
-      const d = DATA.find(x => x.code === selected);
-      document.getElementById('unit-label').textContent = `${d.code} ${d.name}`;
-      const amount = parseFloat(document.getElementById('amount').value) || 0;
-      const fee = parseFloat(document.getElementById('fee').value) || 0;
-
-      const cashTwd = amount * d.cashSell;
-      const visaTwd = amount * d.visa * (1 + fee / 100);
-      const mcTwd = amount * d.mc * (1 + fee / 100);
-
-      const rows = [
-        { label: '銀行現金匯率', sub: `準備 ${d.code} 現鈔（現金賣出價 ${fmt(d.cashSell, d.cashSell < 1 ? 4 : 3)}）`, twd: cashTwd },
-        { label: 'VISA 刷卡', sub: `清算匯率 ${fmt(d.visa, d.visa < 1 ? 5 : 3)}（${d.visaDate}）＋ 手續費 ${fee}%`, twd: visaTwd },
-        { label: 'Mastercard 刷卡', sub: `清算匯率 ${fmt(d.mc, d.mc < 1 ? 5 : 3)}（${d.mcDate}）＋ 手續費 ${fee}%`, twd: mcTwd },
-      ];
-      const minTwd = Math.min(...rows.map(r => r.twd));
-
+    function renderRows(rows, bestType) {
+      const values = rows.map(r => r.val);
+      const bestVal = bestType === 'min' ? Math.min(...values) : Math.max(...values);
       const body = document.getElementById('result-body');
       body.innerHTML = '';
       rows.forEach(r => {
         const tr = document.createElement('tr');
-        const isBest = Math.abs(r.twd - minTwd) < 0.005;
+        const isBest = Math.abs(r.val - bestVal) < 0.005;
         if (isBest) tr.className = 'best';
+        const displayVal = r.unit === 'NT$'
+          ? `NT$ ${fmt(r.val, 0)}`
+          : `${fmt(r.val, 2)} ${r.unit}`;
         tr.innerHTML = `
       <td class="method">${r.label}${isBest ? '<span class="badge-best">最划算</span>' : ''}<small>${r.sub}</small></td>
-      <td class="twd">NT$ ${fmt(r.twd, 0)}</td>
+      <td class="twd">${displayVal}</td>
     `;
         body.appendChild(tr);
       });
     }
 
+    function renderResult() {
+      const d = DATA.find(x => x.code === selected);
+      const amount = parseFloat(document.getElementById('amount').value) || 0;
+      const fee = parseFloat(document.getElementById('fee').value) || 0;
+
+      if (direction === 'toTWD') {
+        document.getElementById('unit-label').textContent = `${d.code} ${d.name}`;
+        const cashTwd = amount * d.cashSell;
+        const visaTwd = amount * d.visa * (1 + fee / 100);
+        const mcTwd = amount * d.mc * (1 + fee / 100);
+        const rows = [
+          { label: '銀行現金匯率', sub: `準備 ${d.code} 現鈔（現金賣出價 ${fmt(d.cashSell, d.cashSell < 1 ? 4 : 3)}）`, val: cashTwd, unit: 'NT$' },
+          { label: 'VISA 刷卡', sub: `清算匯率 ${fmt(d.visa, d.visa < 1 ? 5 : 3)}（${d.visaDate}）＋ 手續費 ${fee}%`, val: visaTwd, unit: 'NT$' },
+          { label: 'Mastercard 刷卡', sub: `清算匯率 ${fmt(d.mc, d.mc < 1 ? 5 : 3)}（${d.mcDate}）＋ 手續費 ${fee}%`, val: mcTwd, unit: 'NT$' },
+        ];
+        renderRows(rows, 'min');
+      } else {
+        document.getElementById('unit-label').textContent = 'TWD 台幣';
+        const cashForeign = d.cashSell > 0 ? amount / d.cashSell : 0;
+        const visaForeign = d.visa > 0 ? amount / (d.visa * (1 + fee / 100)) : 0;
+        const mcForeign = d.mc > 0 ? amount / (d.mc * (1 + fee / 100)) : 0;
+        const rows = [
+          { label: '銀行現金匯率', sub: `用現金賣出價 ${fmt(d.cashSell, d.cashSell < 1 ? 4 : 3)} 換算成 ${d.code} 現鈔`, val: cashForeign, unit: d.code },
+          { label: 'VISA 刷卡等值', sub: `清算匯率 ${fmt(d.visa, d.visa < 1 ? 5 : 3)}（${d.visaDate}）＋ 手續費 ${fee}%`, val: visaForeign, unit: d.code },
+          { label: 'Mastercard 刷卡等值', sub: `清算匯率 ${fmt(d.mc, d.mc < 1 ? 5 : 3)}（${d.mcDate}）＋ 手續費 ${fee}%`, val: mcForeign, unit: d.code },
+        ];
+        renderRows(rows, 'max');
+      }
+    }
+
     document.getElementById('amount').addEventListener('input', renderResult);
     document.getElementById('fee').addEventListener('input', renderResult);
+    document.querySelectorAll('.dir-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        direction = btn.dataset.dir;
+        document.querySelectorAll('.dir-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderResult();
+      });
+    });
 
     renderBoard();
     renderChips();
