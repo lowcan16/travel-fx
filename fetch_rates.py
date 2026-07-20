@@ -1,24 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-fetch_rates.py
-只在「旅行期間」內抓當天匯率（現金 + VISA + Mastercard），
-自動更新「出國匯率換算.html」裡的資料。
-
-用法：
-  1. 改下面 TRIP_START / TRIP_END / HTML_PATH 三個設定
-  2. 排 cron 每天固定時間執行一次（例如每天早上 8:00）
-     crontab -e 加入：
-     0 8 * * * /usr/bin/python3 /完整路徑/fetch_rates.py >> /完整路徑/fetch_rates.log 2>&1
-  3. 不在旅行區間內的日子，程式會直接印訊息、什麼都不改，不需要另外移除 cron
-
-需要先安裝套件：
-  pip3 install requests beautifulsoup4 lxml pandas
-"""
-
 import os
 import re
 import sys
+import subprocess
 from datetime import date
 
 import certifi
@@ -29,14 +14,12 @@ from bs4 import BeautifulSoup
 os.environ["SSL_CERT_FILE"] = certifi.where()
 os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
 
-# ── 1. 改成你的實際旅行日期（含頭尾兩天）──────────────────────
 TRIP_START = date(2026, 7, 10)
 TRIP_END   = date(2026, 7, 30)
 
-# ── 2. 改成 出國匯率換算.html 在你 Mac 上的實際路徑 ──────────────
-HTML_PATH = "/Users/kaiyingwei/Library/Mobile Documents/com~apple~CloudDocs/fetch_rate/出國匯率換算.html"
+REPO_DIR  = "/Users/kaiyingwei/travel-fx"
+HTML_PATH = f"{REPO_DIR}/index.html"
 
-# ── 幣別對照表：JS 檔裡的順序就是這個順序，不要隨便調動 ──────────
 CODE_MAP = {"JPY": "jpy", "USD": "usd", "EUR": "eur", "GBP": "gbp",
             "HKD": "hkd", "AUD": "aud", "CNY": "cny"}
 NAME_MAP = {"JPY": "日圓", "USD": "美元", "EUR": "歐元", "GBP": "英鎊",
@@ -44,14 +27,10 @@ NAME_MAP = {"JPY": "日圓", "USD": "美元", "EUR": "歐元", "GBP": "英鎊",
 
 
 def in_trip_window() -> bool:
-    """今天是不是在旅行區間內（含頭尾）。"""
     return TRIP_START <= date.today() <= TRIP_END
 
 
-def get_boc_cash_rates() -> dict:
-    """抓臺灣銀行牌告匯率（透過 twrates.com，同一個網站不會擋爬蟲）。
-    回傳 {幣別: {現金買入, 現金賣出, 即期買入, 即期賣出}}。
-    """
+def get_boc_cash_rates():
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                       "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -62,10 +41,11 @@ def get_boc_cash_rates() -> dict:
     soup = BeautifulSoup(resp.text, "lxml")
 
     result = {}
+    update_time = ""
     table = soup.find("table")
     for tr in table.find_all("tr")[1:]:
         cols = [td.get_text(strip=True) for td in tr.find_all("td")]
-        if len(cols) < 5:
+        if len(cols) < 6:
             continue
         m = re.match(r".*\((\w+)\)", cols[0])
         if not m:
@@ -81,11 +61,12 @@ def get_boc_cash_rates() -> dict:
             "現金買入": to_float(cols[3]),
             "現金賣出": to_float(cols[4]),
         }
-    return result
+        if not update_time:
+            update_time = cols[5]
+    return result, update_time
 
 
 def get_card_rates(code: str) -> dict:
-    """抓 twrates.com 上某幣別的 VISA / 萬事達 / JCB 匯率比較表。"""
     url = f"https://www.twrates.com/card/visa/{CODE_MAP[code]}.html"
     resp = requests.get(url, timeout=10)
     resp.raise_for_status()
@@ -105,7 +86,6 @@ def get_card_rates(code: str) -> dict:
 
 
 def build_data_js(cash: dict, cards: dict) -> str:
-    """組出新的 `const DATA = [...]` JS 區塊。"""
     lines = ["const DATA = ["]
     for code in CODE_MAP:
         c = cash.get(code)
@@ -125,12 +105,24 @@ def build_data_js(cash: dict, cards: dict) -> str:
     return "\n".join(lines)
 
 
-def update_html(new_data_js: str) -> None:
+def update_html(new_data_js: str, cash_update_time: str) -> None:
     with open(HTML_PATH, "r", encoding="utf-8") as f:
         html = f.read()
-    new_html = re.sub(r"const DATA = \[.*?\];", lambda _: new_data_js, html, flags=re.S)
+    html = re.sub(r"const DATA = \[.*?\];", lambda _: new_data_js, html, flags=re.S)
+    if cash_update_time:
+        html = re.sub(
+            r'(id="cash-date">).*?(</b>)',
+            lambda m: m.group(1) + cash_update_time + m.group(2),
+            html,
+        )
     with open(HTML_PATH, "w", encoding="utf-8") as f:
-        f.write(new_html)
+        f.write(html)
+
+
+def git_push():
+    subprocess.run(["git", "-C", REPO_DIR, "add", "-A"], check=True)
+    subprocess.run(["git", "-C", REPO_DIR, "commit", "-m", f"更新匯率 {date.today()}"], check=False)
+    subprocess.run(["git", "-C", REPO_DIR, "push"], check=True)
 
 
 def main():
@@ -140,11 +132,12 @@ def main():
         sys.exit(0)
 
     print(f"{today} 在旅行區間內，開始抓匯率...")
-    cash = get_boc_cash_rates()
+    cash, cash_update_time = get_boc_cash_rates()
     cards = {code: get_card_rates(code) for code in CODE_MAP}
     new_data_js = build_data_js(cash, cards)
-    update_html(new_data_js)
-    print(f"完成，已更新 {HTML_PATH}")
+    update_html(new_data_js, cash_update_time)
+    git_push()
+    print(f"完成，已更新 {HTML_PATH}，更新時間標記：{cash_update_time}")
 
 
 if __name__ == "__main__":

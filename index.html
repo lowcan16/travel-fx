@@ -1,277 +1,484 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>出國旅遊匯率快查</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#f5f6fb;
-    --panel:#ffffff;
-    --panel-2:#eef0f8;
-    --border:#dde1ef;
-    --amber:#c98a00;
-    --amber-bg:#fff4de;
-    --navy:#131a3a;
-    --muted:#6b7290;
-    --teal:#0f9b8e;
-    --teal-bg:#e6f7f5;
-  }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html{-webkit-text-size-adjust:100%;}
-  body{
-    margin:0;
-    background:
-      radial-gradient(900px 420px at 8% -8%, #eef1fc 0%, transparent 60%),
-      radial-gradient(700px 380px at 105% 6%, #fdf3e2 0%, transparent 55%),
-      var(--bg);
-    color:var(--navy);
-    font-family:'Noto Sans TC', sans-serif;
-    padding:20px 14px 48px;
-  }
-  .wrap{max-width:920px;margin:0 auto;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>出國旅遊匯率快查</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f6fb;
+      --panel: #ffffff;
+      --panel-2: #eef0f8;
+      --border: #dde1ef;
+      --amber: #c98a00;
+      --amber-bg: #fff4de;
+      --navy: #131a3a;
+      --muted: #6b7290;
+      --teal: #0f9b8e;
+      --teal-bg: #e6f7f5;
+    }
 
-  /* ---- Header : departure board strip ---- */
-  header{
-    display:flex;justify-content:space-between;align-items:flex-end;
-    flex-wrap:wrap;gap:10px;
-    border-bottom:1px dashed var(--border);
-    padding-bottom:14px;margin-bottom:18px;
-  }
-  .brand-eyebrow{
-    font-family:'Space Mono',monospace;
-    letter-spacing:.25em;
-    font-size:11px;
-    color:var(--amber);
-    text-transform:uppercase;
-    margin-bottom:6px;
-    font-weight:700;
-  }
-  h1{
-    font-size:24px;margin:0;font-weight:900;letter-spacing:.01em;
-    color:var(--navy);
-  }
-  .sub{color:var(--muted);font-size:13px;margin-top:6px;}
-  .clock{
-    font-family:'Space Mono',monospace;
-    text-align:right;
-    font-size:11.5px;
-    color:var(--muted);
-    line-height:1.8;
-  }
-  .clock b{color:var(--amber);font-weight:700;}
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  /* ---- Rate board ---- */
-  .board-title{
-    font-family:'Space Mono',monospace;
-    font-size:11.5px;letter-spacing:.14em;color:var(--muted);
-    margin:0 2px 10px;text-transform:uppercase;font-weight:700;
-  }
-  .board{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(155px,1fr));
-    gap:10px;
-    margin-bottom:26px;
-  }
-  .flip-card{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:13px 14px 11px;
-    position:relative;
-    box-shadow:0 1px 2px rgba(19,26,58,.04);
-    animation:flipin .45s ease both;
-  }
-  .flip-card .code{
-    font-family:'Space Mono',monospace;
-    font-weight:700;font-size:13px;color:var(--amber);letter-spacing:.04em;
-  }
-  .flip-card .name{font-size:12px;color:var(--muted);margin-left:5px;}
-  .flip-card .cash-rate{
-    font-family:'Space Mono',monospace;
-    font-size:25px;font-weight:700;margin-top:7px;color:var(--navy);
-  }
-  .flip-card .cash-label{font-size:9.5px;color:var(--muted);letter-spacing:.05em;}
-  .flip-card .card-rates{
-    display:flex;justify-content:space-between;
-    margin-top:9px;padding-top:9px;border-top:1px dashed var(--border);
-    font-family:'Space Mono',monospace;font-size:10.5px;color:var(--muted);
-  }
-  .flip-card .card-rates span b{color:var(--teal);font-weight:700;}
-  @keyframes flipin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
 
-  /* ---- Calculator ---- */
-  .calc{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:16px;
-    padding:20px 18px;
-    box-shadow:0 1px 3px rgba(19,26,58,.05);
-  }
-  .calc h2{
-    font-size:16px;margin:0 0 4px;color:var(--navy);
-  }
-  .calc .hint{color:var(--muted);font-size:12.5px;margin-bottom:16px;}
+    body {
+      margin: 0;
+      background:
+        radial-gradient(900px 420px at 8% -8%, #eef1fc 0%, transparent 60%),
+        radial-gradient(700px 380px at 105% 6%, #fdf3e2 0%, transparent 55%),
+        var(--bg);
+      color: var(--navy);
+      font-family: 'Noto Sans TC', sans-serif;
+      padding: 20px 14px 48px;
+    }
 
-  .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;}
-  .chip-group-label{font-size:10.5px;color:var(--muted);letter-spacing:.1em;margin:12px 0 8px;text-transform:uppercase;font-weight:700;}
-  .chip{
-    font-family:'Space Mono',monospace;
-    background:var(--panel-2);
-    border:1px solid var(--border);
-    color:var(--navy);
-    padding:9px 14px;border-radius:999px;
-    font-size:13px;cursor:pointer;
-    transition:.15s;
-    min-height:36px;
-  }
-  .chip:hover{border-color:var(--amber);}
-  .chip.active{background:var(--amber-bg);color:var(--amber);border-color:var(--amber);font-weight:700;}
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+    }
 
-  .amount-row{
-    display:flex;gap:10px;align-items:center;margin:16px 0 6px;flex-wrap:wrap;
-  }
-  .amount-row input[type=number]{
-    flex:1;min-width:150px;
-    background:var(--panel-2);border:1px solid var(--border);
-    color:var(--navy);font-family:'Space Mono',monospace;font-size:18px;
-    padding:12px 14px;border-radius:10px;
-    width:100%;
-  }
-  .amount-row input[type=number]:focus{outline:2px solid var(--amber);}
-  .unit{font-family:'Space Mono',monospace;color:var(--muted);font-size:13px;white-space:nowrap;}
+    /* ---- Header : departure board strip ---- */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
 
-  .fee-row{
-    display:flex;align-items:center;gap:10px;margin:14px 0 4px;
-    font-size:12.5px;color:var(--muted);flex-wrap:wrap;
-  }
-  .fee-row input[type=number]{
-    width:72px;background:var(--panel-2);border:1px solid var(--border);
-    color:var(--amber);font-family:'Space Mono',monospace;font-size:16px;
-    padding:7px 8px;border-radius:8px;text-align:right;
-  }
+    .brand-eyebrow {
+      font-family: 'Space Mono', monospace;
+      letter-spacing: .25em;
+      font-size: 11px;
+      color: var(--amber);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
 
-  table.result{
-    width:100%;border-collapse:collapse;margin-top:18px;
-    font-size:13.5px;
-  }
-  table.result th{
-    text-align:left;font-size:10.5px;color:var(--muted);
-    letter-spacing:.07em;text-transform:uppercase;
-    padding:6px 8px;border-bottom:1px solid var(--border);
-  }
-  table.result td{
-    padding:12px 8px;border-bottom:1px solid var(--border);
-    vertical-align:middle;
-  }
-  table.result tr.best{background:var(--teal-bg);}
-  table.result td.method{font-weight:700;}
-  table.result td.method small{display:block;font-weight:400;color:var(--muted);font-size:11px;margin-top:3px;line-height:1.5;}
-  table.result td.twd{
-    font-family:'Space Mono',monospace;font-size:17px;text-align:right;
-    color:var(--navy);white-space:nowrap;font-weight:700;
-  }
-  .badge-best{
-    display:inline-block;font-family:'Space Mono',monospace;font-size:9.5px;
-    background:var(--teal);color:#ffffff;padding:2px 8px;border-radius:999px;
-    margin-left:6px;font-weight:700;vertical-align:middle;
-  }
+    h1 {
+      font-size: 24px;
+      margin: 0;
+      font-weight: 900;
+      letter-spacing: .01em;
+      color: var(--navy);
+    }
 
-  footer{
-    margin-top:24px;color:var(--muted);font-size:11px;line-height:1.9;
-    border-top:1px dashed var(--border);padding-top:14px;
-  }
-  footer b{color:var(--navy);}
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+    }
 
-  @media(max-width:600px){
-    body{padding:16px 12px 40px;}
-    .clock{text-align:left;}
-    header{flex-direction:column;align-items:flex-start;}
-    table.result td.method small{font-size:10.5px;}
-    table.result td.twd{font-size:15px;}
-  }
-</style>
+    .clock {
+      font-family: 'Space Mono', monospace;
+      text-align: right;
+      font-size: 11.5px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .clock b {
+      color: var(--amber);
+      font-weight: 700;
+    }
+
+    /* ---- Rate board ---- */
+    .board-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 11.5px;
+      letter-spacing: .14em;
+      color: var(--muted);
+      margin: 0 2px 10px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 10px;
+      margin-bottom: 26px;
+    }
+
+    .flip-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 14px 11px;
+      position: relative;
+      box-shadow: 0 1px 2px rgba(19, 26, 58, .04);
+      animation: flipin .45s ease both;
+    }
+
+    .flip-card .code {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--amber);
+      letter-spacing: .04em;
+    }
+
+    .flip-card .name {
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: 5px;
+    }
+
+    .flip-card .cash-rate {
+      font-family: 'Space Mono', monospace;
+      font-size: 25px;
+      font-weight: 700;
+      margin-top: 7px;
+      color: var(--navy);
+    }
+
+    .flip-card .cash-label {
+      font-size: 9.5px;
+      color: var(--muted);
+      letter-spacing: .05em;
+    }
+
+    .flip-card .card-rates {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 9px;
+      padding-top: 9px;
+      border-top: 1px dashed var(--border);
+      font-family: 'Space Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+    }
+
+    .flip-card .card-rates span b {
+      color: var(--teal);
+      font-weight: 700;
+    }
+
+    @keyframes flipin {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* ---- Calculator ---- */
+    .calc {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 18px;
+      box-shadow: 0 1px 3px rgba(19, 26, 58, .05);
+    }
+
+    .calc h2 {
+      font-size: 16px;
+      margin: 0 0 4px;
+      color: var(--navy);
+    }
+
+    .calc .hint {
+      color: var(--muted);
+      font-size: 12.5px;
+      margin-bottom: 16px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .chip-group-label {
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: .1em;
+      margin: 12px 0 8px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .chip {
+      font-family: 'Space Mono', monospace;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--navy);
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: .15s;
+      min-height: 36px;
+    }
+
+    .chip:hover {
+      border-color: var(--amber);
+    }
+
+    .chip.active {
+      background: var(--amber-bg);
+      color: var(--amber);
+      border-color: var(--amber);
+      font-weight: 700;
+    }
+
+    .amount-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin: 16px 0 6px;
+      flex-wrap: wrap;
+    }
+
+    .amount-row input[type=number] {
+      flex: 1;
+      min-width: 150px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--navy);
+      font-family: 'Space Mono', monospace;
+      font-size: 18px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      width: 100%;
+    }
+
+    .amount-row input[type=number]:focus {
+      outline: 2px solid var(--amber);
+    }
+
+    .unit {
+      font-family: 'Space Mono', monospace;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .fee-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 14px 0 4px;
+      font-size: 12.5px;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+
+    .fee-row input[type=number] {
+      width: 72px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--amber);
+      font-family: 'Space Mono', monospace;
+      font-size: 16px;
+      padding: 7px 8px;
+      border-radius: 8px;
+      text-align: right;
+    }
+
+    table.result {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 18px;
+      font-size: 13.5px;
+    }
+
+    table.result th {
+      text-align: left;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    table.result td {
+      padding: 12px 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    table.result tr.best {
+      background: var(--teal-bg);
+    }
+
+    table.result td.method {
+      font-weight: 700;
+    }
+
+    table.result td.method small {
+      display: block;
+      font-weight: 400;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+      line-height: 1.5;
+    }
+
+    table.result td.twd {
+      font-family: 'Space Mono', monospace;
+      font-size: 17px;
+      text-align: right;
+      color: var(--navy);
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    .badge-best {
+      display: inline-block;
+      font-family: 'Space Mono', monospace;
+      font-size: 9.5px;
+      background: var(--teal);
+      color: #ffffff;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-left: 6px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+
+    footer {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.9;
+      border-top: 1px dashed var(--border);
+      padding-top: 14px;
+    }
+
+    footer b {
+      color: var(--navy);
+    }
+
+    @media(max-width:600px) {
+      body {
+        padding: 16px 12px 40px;
+      }
+
+      .clock {
+        text-align: left;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      table.result td.method small {
+        font-size: 10.5px;
+      }
+
+      table.result td.twd {
+        font-size: 15px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<div class="wrap">
+  <div class="wrap">
 
-  <header>
-    <div>
-      <div class="brand-eyebrow">TRAVEL FX BOARD · TWD</div>
-      <h1>出國旅遊匯率快查</h1>
-      <div class="sub">現金匯率（臺灣銀行）＋ VISA／Mastercard 刷卡匯率一次比較</div>
+    <header>
+      <div>
+        <div class="brand-eyebrow">TRAVEL FX BOARD · TWD</div>
+        <h1>出國旅遊匯率快查</h1>
+        <div class="sub">現金匯率（臺灣銀行）＋ VISA／Mastercard 刷卡匯率一次比較</div>
+      </div>
+      <div class="clock">
+        現金匯率掛牌 ── <b id="cash-date">2026-07-20 22:22</b><br>
+        VISA／萬事達（Mastercard）── <b>即日牌價，逐幣別標註查詢日</b>
+      </div>
+    </header>
+
+    <div class="board-title">今日參考匯率（1 單位外幣＝多少台幣）</div>
+    <div class="board" id="board"></div>
+
+    <div class="calc">
+      <h2>換匯試算</h2>
+      <div class="hint">選擇幣別、輸入金額，比較「準備現金」跟「刷卡（含手續費）」哪個划算。</div>
+
+      <div class="chip-group-label">常用幣別</div>
+      <div class="chip-row" id="chips-main"></div>
+      <div class="chip-group-label">其他幣別</div>
+      <div class="chip-row" id="chips-other"></div>
+
+      <div class="amount-row">
+        <span class="unit">金額</span>
+        <input type="number" id="amount" value="10000" min="0" step="1" inputmode="decimal">
+        <span class="unit" id="unit-label">JPY 日圓</span>
+      </div>
+
+      <div class="fee-row">
+        刷卡國外交易手續費（VISA／Mastercard 皆適用，各發卡銀行約 1%～1.5%，可自行調整）
+        <input type="number" id="fee" value="1.5" step="0.1" min="0" inputmode="decimal"> %
+      </div>
+
+      <table class="result">
+        <thead>
+          <tr>
+            <th>方式</th>
+            <th style="text-align:right">折合台幣</th>
+          </tr>
+        </thead>
+        <tbody id="result-body"></tbody>
+      </table>
     </div>
-    <div class="clock">
-      現金匯率掛牌 ── <b>2026/07/17 16:00</b><br>
-      VISA／萬事達（Mastercard）── <b>即日牌價，逐幣別標註查詢日</b>
-    </div>
-  </header>
 
-  <div class="board-title">今日參考匯率（1 單位外幣＝多少台幣）</div>
-  <div class="board" id="board"></div>
-
-  <div class="calc">
-    <h2>換匯試算</h2>
-    <div class="hint">選擇幣別、輸入金額，比較「準備現金」跟「刷卡（含手續費）」哪個划算。</div>
-
-    <div class="chip-group-label">常用幣別</div>
-    <div class="chip-row" id="chips-main"></div>
-    <div class="chip-group-label">其他幣別</div>
-    <div class="chip-row" id="chips-other"></div>
-
-    <div class="amount-row">
-      <span class="unit">金額</span>
-      <input type="number" id="amount" value="10000" min="0" step="1" inputmode="decimal">
-      <span class="unit" id="unit-label">JPY 日圓</span>
-    </div>
-
-    <div class="fee-row">
-      刷卡國外交易手續費（VISA／Mastercard 皆適用，各發卡銀行約 1%～1.5%，可自行調整）
-      <input type="number" id="fee" value="1.5" step="0.1" min="0" inputmode="decimal"> %
-    </div>
-
-    <table class="result">
-      <thead>
-        <tr><th>方式</th><th style="text-align:right">折合台幣</th></tr>
-      </thead>
-      <tbody id="result-body"></tbody>
-    </table>
+    <footer>
+      <b>資料來源：</b>現金匯率取自臺灣銀行牌告匯率（現金賣出價，即臨櫃兌換外幣現鈔需支付的台幣）；VISA／Mastercard
+      為兩大卡組織公開的跨境清算匯率（未含銀行手續費，各幣別實際查詢日不同，已於卡片下方標註）。<br>
+      <b>注意事項：</b>刷卡實際請款金額以「消費當下」或「入帳結算日」卡組織匯率為準，可能與試算當下不同；銀行手續費請以自己發卡行公告為準（本工具預設
+      1.5%，可自行修改）；現金匯率會隨臨櫃現場報價浮動，出發前建議再次確認。以上數字僅供旅遊預算規劃參考，不作為實際交易依據。
+    </footer>
   </div>
 
-  <footer>
-    <b>資料來源：</b>現金匯率取自臺灣銀行牌告匯率（現金賣出價，即臨櫃兌換外幣現鈔需支付的台幣）；VISA／Mastercard 為兩大卡組織公開的跨境清算匯率（未含銀行手續費，各幣別實際查詢日不同，已於卡片下方標註）。<br>
-    <b>注意事項：</b>刷卡實際請款金額以「消費當下」或「入帳結算日」卡組織匯率為準，可能與試算當下不同；銀行手續費請以自己發卡行公告為準（本工具預設 1.5%，可自行修改）；現金匯率會隨臨櫃現場報價浮動，出發前建議再次確認。以上數字僅供旅遊預算規劃參考，不作為實際交易依據。
-  </footer>
-</div>
-
-<script>
-const DATA = [
-  { code:'JPY', name:'日圓', cashBuy:0.1897, cashSell:0.2025, visa:0.19990728, visaDate:'07-19', mc:0.199926, mcDate:'07-19' },
-  { code:'USD', name:'美元', cashBuy:31.89, cashSell:32.56, visa:32.409, visaDate:'07-19', mc:32.412, mcDate:'07-19' },
-  { code:'EUR', name:'歐元', cashBuy:36.13, cashSell:37.47, visa:37.12123149, visaDate:'07-19', mc:37.1246813, mcDate:'07-19' },
-  { code:'GBP', name:'英鎊', cashBuy:42.26, cashSell:44.38, visa:43.72617908, visaDate:'07-19', mc:43.730268, mcDate:'07-19' },
-  { code:'HKD', name:'港幣', cashBuy:3.963, cashSell:4.167, visa:4.13474619, visaDate:'07-19', mc:4.1347111, mcDate:'07-19' },
-  { code:'AUD', name:'澳幣', cashBuy:22.16, cashSell:22.94, visa:22.71868628, visaDate:'07-19', mc:22.704602, mcDate:'07-19' },
-  { code:'CNY', name:'人民幣', cashBuy:4.668, cashSell:4.83, visa:4.78438873, visaDate:'07-19', mc:4.7859664, mcDate:'07-19' },
+  <script>
+    const DATA = [
+  { code:'JPY', name:'日圓', cashBuy:0.1893, cashSell:0.2021, visa:0.19990728, visaDate:'07-20', mc:0.199926, mcDate:'07-19' },
+  { code:'USD', name:'美元', cashBuy:31.85, cashSell:32.52, visa:32.409, visaDate:'07-20', mc:32.412, mcDate:'07-19' },
+  { code:'EUR', name:'歐元', cashBuy:36.02, cashSell:37.36, visa:37.12123149, visaDate:'07-20', mc:37.1246813, mcDate:'07-19' },
+  { code:'GBP', name:'英鎊', cashBuy:42.2, cashSell:44.32, visa:43.72617908, visaDate:'07-20', mc:43.730268, mcDate:'07-19' },
+  { code:'HKD', name:'港幣', cashBuy:3.958, cashSell:4.162, visa:4.13474619, visaDate:'07-20', mc:4.1347111, mcDate:'07-19' },
+  { code:'AUD', name:'澳幣', cashBuy:22.22, cashSell:23.0, visa:22.71868628, visaDate:'07-20', mc:22.704602, mcDate:'07-19' },
+  { code:'CNY', name:'人民幣', cashBuy:4.669, cashSell:4.831, visa:4.78438873, visaDate:'07-20', mc:4.7859664, mcDate:'07-19' },
 ];
-const MAIN_CODES = ['JPY','USD','EUR','GBP'];
+    const MAIN_CODES = ['JPY', 'USD', 'EUR', 'GBP'];
 
-let selected = 'JPY';
+    let selected = 'JPY';
 
-function fmt(n, maxDp){
-  return n.toLocaleString('zh-Hant-TW', {maximumFractionDigits: maxDp ?? 2, minimumFractionDigits:0});
-}
+    function fmt(n, maxDp) {
+      return n.toLocaleString('zh-Hant-TW', { maximumFractionDigits: maxDp ?? 2, minimumFractionDigits: 0 });
+    }
 
-function renderBoard(){
-  const board = document.getElementById('board');
-  board.innerHTML = '';
-  DATA.forEach((d, i) => {
-    const el = document.createElement('div');
-    el.className = 'flip-card';
-    el.style.animationDelay = (i*0.05)+'s';
-    el.innerHTML = `
+    function renderBoard() {
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+      DATA.forEach((d, i) => {
+        const el = document.createElement('div');
+        el.className = 'flip-card';
+        el.style.animationDelay = (i * 0.05) + 's';
+        el.innerHTML = `
       <span class="code">${d.code}</span><span class="name">${d.name}</span>
       <div class="cash-rate">${fmt(d.cashSell, d.cashSell < 1 ? 4 : 3)}</div>
       <div class="cash-label">現金賣出（買外幣現鈔）</div>
@@ -280,61 +487,62 @@ function renderBoard(){
         <span style="text-align:right">Mastercard <b>${fmt(d.mc, d.mc < 1 ? 5 : 3)}</b><br><span style="opacity:.65">${d.mcDate}</span></span>
       </div>
     `;
-    board.appendChild(el);
-  });
-}
+        board.appendChild(el);
+      });
+    }
 
-function renderChips(){
-  const mainWrap = document.getElementById('chips-main');
-  const otherWrap = document.getElementById('chips-other');
-  mainWrap.innerHTML = '';
-  otherWrap.innerHTML = '';
-  DATA.forEach(d => {
-    const chip = document.createElement('button');
-    chip.className = 'chip' + (d.code === selected ? ' active' : '');
-    chip.textContent = `${d.code} ${d.name}`;
-    chip.onclick = () => { selected = d.code; renderChips(); renderResult(); };
-    (MAIN_CODES.includes(d.code) ? mainWrap : otherWrap).appendChild(chip);
-  });
-}
+    function renderChips() {
+      const mainWrap = document.getElementById('chips-main');
+      const otherWrap = document.getElementById('chips-other');
+      mainWrap.innerHTML = '';
+      otherWrap.innerHTML = '';
+      DATA.forEach(d => {
+        const chip = document.createElement('button');
+        chip.className = 'chip' + (d.code === selected ? ' active' : '');
+        chip.textContent = `${d.code} ${d.name}`;
+        chip.onclick = () => { selected = d.code; renderChips(); renderResult(); };
+        (MAIN_CODES.includes(d.code) ? mainWrap : otherWrap).appendChild(chip);
+      });
+    }
 
-function renderResult(){
-  const d = DATA.find(x => x.code === selected);
-  document.getElementById('unit-label').textContent = `${d.code} ${d.name}`;
-  const amount = parseFloat(document.getElementById('amount').value) || 0;
-  const fee = parseFloat(document.getElementById('fee').value) || 0;
+    function renderResult() {
+      const d = DATA.find(x => x.code === selected);
+      document.getElementById('unit-label').textContent = `${d.code} ${d.name}`;
+      const amount = parseFloat(document.getElementById('amount').value) || 0;
+      const fee = parseFloat(document.getElementById('fee').value) || 0;
 
-  const cashTwd = amount * d.cashSell;
-  const visaTwd = amount * d.visa * (1 + fee/100);
-  const mcTwd   = amount * d.mc   * (1 + fee/100);
+      const cashTwd = amount * d.cashSell;
+      const visaTwd = amount * d.visa * (1 + fee / 100);
+      const mcTwd = amount * d.mc * (1 + fee / 100);
 
-  const rows = [
-    { label:'銀行現金匯率', sub:`準備 ${d.code} 現鈔（現金賣出價 ${fmt(d.cashSell, d.cashSell<1?4:3)}）`, twd:cashTwd },
-    { label:'VISA 刷卡',    sub:`清算匯率 ${fmt(d.visa, d.visa<1?5:3)}（${d.visaDate}）＋ 手續費 ${fee}%`, twd:visaTwd },
-    { label:'Mastercard 刷卡', sub:`清算匯率 ${fmt(d.mc, d.mc<1?5:3)}（${d.mcDate}）＋ 手續費 ${fee}%`, twd:mcTwd },
-  ];
-  const minTwd = Math.min(...rows.map(r=>r.twd));
+      const rows = [
+        { label: '銀行現金匯率', sub: `準備 ${d.code} 現鈔（現金賣出價 ${fmt(d.cashSell, d.cashSell < 1 ? 4 : 3)}）`, twd: cashTwd },
+        { label: 'VISA 刷卡', sub: `清算匯率 ${fmt(d.visa, d.visa < 1 ? 5 : 3)}（${d.visaDate}）＋ 手續費 ${fee}%`, twd: visaTwd },
+        { label: 'Mastercard 刷卡', sub: `清算匯率 ${fmt(d.mc, d.mc < 1 ? 5 : 3)}（${d.mcDate}）＋ 手續費 ${fee}%`, twd: mcTwd },
+      ];
+      const minTwd = Math.min(...rows.map(r => r.twd));
 
-  const body = document.getElementById('result-body');
-  body.innerHTML = '';
-  rows.forEach(r => {
-    const tr = document.createElement('tr');
-    const isBest = Math.abs(r.twd - minTwd) < 0.005;
-    if (isBest) tr.className = 'best';
-    tr.innerHTML = `
+      const body = document.getElementById('result-body');
+      body.innerHTML = '';
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        const isBest = Math.abs(r.twd - minTwd) < 0.005;
+        if (isBest) tr.className = 'best';
+        tr.innerHTML = `
       <td class="method">${r.label}${isBest ? '<span class="badge-best">最划算</span>' : ''}<small>${r.sub}</small></td>
       <td class="twd">NT$ ${fmt(r.twd, 0)}</td>
     `;
-    body.appendChild(tr);
-  });
-}
+        body.appendChild(tr);
+      });
+    }
 
-document.getElementById('amount').addEventListener('input', renderResult);
-document.getElementById('fee').addEventListener('input', renderResult);
+    document.getElementById('amount').addEventListener('input', renderResult);
+    document.getElementById('fee').addEventListener('input', renderResult);
 
-renderBoard();
-renderChips();
-renderResult();
-</script>
+    renderBoard();
+    renderChips();
+    renderResult();
+  </script>
 </body>
+
 </html>
