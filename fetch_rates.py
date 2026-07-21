@@ -20,9 +20,9 @@ TRIP_END   = date(2026, 7, 30)
 REPO_DIR  = "/Users/kaiyingwei/travel-fx"
 HTML_PATH = f"{REPO_DIR}/index.html"
 
-CODE_MAP = {"JPY": "jpy", "USD": "usd", "EUR": "eur", "GBP": "gbp",
+CODE_MAP = {"JPY": "jpy", "USD": "usd", "CAD": "cad", "EUR": "eur", "GBP": "gbp",
             "HKD": "hkd", "AUD": "aud", "CNY": "cny"}
-NAME_MAP = {"JPY": "日圓", "USD": "美元", "EUR": "歐元", "GBP": "英鎊",
+NAME_MAP = {"JPY": "日圓", "USD": "美元", "CAD": "加拿大幣", "EUR": "歐元", "GBP": "英鎊",
             "HKD": "港幣", "AUD": "澳幣", "CNY": "人民幣"}
 
 
