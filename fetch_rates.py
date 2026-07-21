@@ -21,9 +21,9 @@ REPO_DIR  = "/Users/kaiyingwei/travel-fx"
 HTML_PATH = f"{REPO_DIR}/index.html"
 
 CODE_MAP = {"JPY": "jpy", "USD": "usd", "CAD": "cad", "EUR": "eur", "GBP": "gbp",
-            "HKD": "hkd", "AUD": "aud", "CNY": "cny"}
+            "AUD": "aud", "HKD": "hkd", "CNY": "cny"}
 NAME_MAP = {"JPY": "日圓", "USD": "美元", "CAD": "加拿大幣", "EUR": "歐元", "GBP": "英鎊",
-            "HKD": "港幣", "AUD": "澳幣", "CNY": "人民幣"}
+            "AUD": "澳幣", "HKD": "港幣",  "CNY": "人民幣"}
 
 
 def in_trip_window() -> bool:
