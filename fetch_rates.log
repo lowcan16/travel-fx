@@ -1,3 +1,17 @@
 /usr/local/bin/python3 /Users/kaiyingwei/travel-fx/fetch_rates.py
 > ~/travel-fx/fetch_rates.log
 /usr/local/bin/python3 /Users/kaiyingwei/travel-fx/fetch_rates.py
+[main 8f979fa] 更新匯率 2026-07-24
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+fatal: could not read Username for 'https://github.com': Device not configured
+2026-07-24 在旅行區間內，開始抓匯率...
+Traceback (most recent call last):
+  File "/Users/kaiyingwei/travel-fx/fetch_rates.py", line 144, in <module>
+    main()
+  File "/Users/kaiyingwei/travel-fx/fetch_rates.py", line 139, in main
+    git_push()
+  File "/Users/kaiyingwei/travel-fx/fetch_rates.py", line 125, in git_push
+    subprocess.run(["git", "-C", REPO_DIR, "push"], check=True)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/subprocess.py", line 524, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '/Users/kaiyingwei/travel-fx', 'push']' returned non-zero exit status 128.
